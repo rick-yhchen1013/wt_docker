@@ -1,0 +1,22 @@
+FROM ubuntu:20.04
+
+RUN apt-get update -y
+ENV TERM vt100
+ENV TZ Asia/Taipei
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt-get -y install sudo vim tzdata apt-utils dialog python3 cpio python2.7 python2 locales python3-distutils python-distutils-extra && locale-gen en_US.UTF-8
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+RUN apt-get -y install gcc-aarch64-linux-gnu socat gawk wget git-core diffstat unzip texinfo build-essential chrpath libncurses-dev libncurses5-dev patchutils curl git-lfs bc qemu-user-static debootstrap zlib1g-dev u-boot-tools dosfstools mtools parted fakeroot flex debhelper bison rsync libssl-dev kmod
+# The packages are used for aditof project
+# gcc-aarch64-linux-gnu, bc, qemu-user-static, debootstrap, zlib1g-dev, u-boot-tools, dosfstools, mtools, parted
+
+# The following package is used by MTK platform
+# git fakeroot libncurses-dev gcc-aarch64-linux-gnu debhelper flex bison rsync libssl-dev kmod
+
+RUN useradd -u 1000 user
+RUN mkdir /home/user && chown user.user /home/user && echo 'user:user' | chpasswd && echo 'user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && echo 'export PS1="[\u@docker]:\W$ "' >> /etc/bash.bashrc
+
+USER user
+ENV LC_ALL en_US.UTF-8
+RUN mkdir -p /home/user/bin && curl https://storage.googleapis.com/git-repo-downloads/repo > /home/user/bin/repo && chmod a+x /home/user/bin/repo
+
